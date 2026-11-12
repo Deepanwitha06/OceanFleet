@@ -1,27 +1,25 @@
-
 package com.oceanfleet.model;
 
 public class Vessel {
 
-    // Private fields to maintain encapsulation
     private String vesselId;
     private String vesselName;
     private double averageSpeed;
     private String vesselType;
 
-    // Default constructor
+    // No-argument constructor
     public Vessel() {
     }
 
     // Parameterized constructor
-    public Vessel(String vesselId, String vesselName,
-                  double averageSpeed, String vesselType) {
+    public Vessel(String vesselId, String vesselName, double averageSpeed, String vesselType) {
         this.vesselId = vesselId;
         this.vesselName = vesselName;
         this.averageSpeed = averageSpeed;
         this.vesselType = vesselType;
     }
 
+    // Getters and setters
     public String getVesselId() {
         return vesselId;
     }

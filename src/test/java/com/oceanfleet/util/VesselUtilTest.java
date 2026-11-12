@@ -1,83 +1,84 @@
-
 package com.oceanfleet.util;
 
 import com.oceanfleet.model.Vessel;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class VesselUtilTest {
 
-    // Test retrieval of an existing vessel
+    // Test when one vessel has the highest speed
     @Test
-    void testGetVesselById() {
-        VesselUtil vesselUtil = new VesselUtil();
+    void testSingleHighestPerformanceVessel() {
+        VesselUtil util = new VesselUtil();
 
-        Vessel vessel = new Vessel(
-                "V001", "Sea King", 25.5, "Cargo"
-        );
+        util.addVesselPerformance(new Vessel("V001", "Sea King", 25.5, "Cargo"));
+        util.addVesselPerformance(new Vessel("V002", "Ocean Star", 18.0, "Tanker"));
+        util.addVesselPerformance(new Vessel("V003", "Wave Rider", 22.3, "Cruise"));
 
-        vesselUtil.addVesselPerformance(vessel);
+        List<Vessel> result = util.getHighPerformanceVessels();
 
-        Vessel result = vesselUtil.getVesselById("V001");
+        assertEquals(1, result.size());
+        assertEquals("V001", result.get(0).getVesselId());
+        assertEquals(25.5, result.get(0).getAverageSpeed());
+    }
+
+    // Test when multiple vessels share the highest speed
+    @Test
+    void testMultipleVesselsWithSameHighestSpeed() {
+        VesselUtil util = new VesselUtil();
+
+        util.addVesselPerformance(new Vessel("V001", "Sea King", 25.5, "Cargo"));
+        util.addVesselPerformance(new Vessel("V002", "Ocean Star", 18.0, "Tanker"));
+        util.addVesselPerformance(new Vessel("V003", "Wave Rider", 25.5, "Cruise"));
+
+        List<Vessel> result = util.getHighPerformanceVessels();
+
+        assertEquals(2, result.size());
+        assertEquals("V001", result.get(0).getVesselId());
+        assertEquals("V003", result.get(1).getVesselId());
+    }
+
+    // Test that vessels with lower speeds are excluded
+    @Test
+    void testLowerSpeedVesselsAreExcluded() {
+        VesselUtil util = new VesselUtil();
+
+        util.addVesselPerformance(new Vessel("V001", "Sea King", 25.5, "Cargo"));
+        util.addVesselPerformance(new Vessel("V002", "Ocean Star", 18.0, "Tanker"));
+        util.addVesselPerformance(new Vessel("V003", "Wave Rider", 22.3, "Cruise"));
+
+        List<Vessel> result = util.getHighPerformanceVessels();
+
+        assertFalse(result.stream().anyMatch(vessel ->
+                vessel.getVesselId().equals("V002")));
+        assertFalse(result.stream().anyMatch(vessel ->
+                vessel.getVesselId().equals("V003")));
+    }
+
+    // Test when the vessel list is empty
+    @Test
+    void testEmptyVesselList() {
+        VesselUtil util = new VesselUtil();
+
+        List<Vessel> result = util.getHighPerformanceVessels();
 
         assertNotNull(result);
-        assertSame(vessel, result);
-        assertEquals("Sea King", result.getVesselName());
+        assertTrue(result.isEmpty());
     }
 
-    // Test retrieval when multiple vessels exist
+    // Test when the list contains only one vessel
     @Test
-    void testGetVesselFromMultipleRecords() {
-        VesselUtil vesselUtil = new VesselUtil();
+    void testOnlyOneVessel() {
+        VesselUtil util = new VesselUtil();
 
-        vesselUtil.addVesselPerformance(
-                new Vessel("V001", "Sea King", 25.5, "Cargo")
-        );
+        util.addVesselPerformance(new Vessel("V001", "Sea King", 25.5, "Cargo"));
 
-        vesselUtil.addVesselPerformance(
-                new Vessel("V002", "Ocean Star", 18.0, "Tanker")
-        );
+        List<Vessel> result = util.getHighPerformanceVessels();
 
-        vesselUtil.addVesselPerformance(
-                new Vessel("V003", "Wave Rider", 22.3, "Cruise")
-        );
-
-        Vessel result = vesselUtil.getVesselById("V002");
-
-        assertNotNull(result);
-        assertEquals("Ocean Star", result.getVesselName());
-    }
-
-    // Test an ID that does not exist
-    @Test
-    void testGetVesselByInvalidId() {
-        VesselUtil vesselUtil = new VesselUtil();
-
-        vesselUtil.addVesselPerformance(
-                new Vessel("V001", "Sea King", 25.5, "Cargo")
-        );
-
-        assertNull(vesselUtil.getVesselById("V004"));
-    }
-
-    // Test case-sensitive ID comparison
-    @Test
-    void testGetVesselByCaseSensitiveId() {
-        VesselUtil vesselUtil = new VesselUtil();
-
-        vesselUtil.addVesselPerformance(
-                new Vessel("V001", "Sea King", 25.5, "Cargo")
-        );
-
-        assertNull(vesselUtil.getVesselById("v001"));
-    }
-
-    // Test searching an empty list
-    @Test
-    void testGetVesselFromEmptyList() {
-        VesselUtil vesselUtil = new VesselUtil();
-
-        assertNull(vesselUtil.getVesselById("V001"));
+        assertEquals(1, result.size());
+        assertEquals("V001", result.get(0).getVesselId());
     }
 }
